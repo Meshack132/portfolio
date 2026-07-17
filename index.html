@@ -68,7 +68,7 @@
             <div class="section-label"><i class="fas fa-folder-open"></i> Portfolio</div>
             <h2 class="section-title">Upload &amp; View <span>Your Work</span></h2>
             <p style="color:var(--text-secondary); max-width:600px; margin-bottom:40px;">
-                Upload your portfolio PDF and click <strong>"Save Permanently"</strong> – it will be stored in your browser (localStorage) and load automatically every time you visit.
+                Upload your portfolio PDF and click <strong>"Save Permanently"</strong> – it will be stored in your browser’s IndexedDB (large file support) and load automatically every time you visit.
             </p>
 
             <!-- Upload Area -->
@@ -91,7 +91,7 @@
                     <i class="fas fa-save"></i> Save Permanently
                 </button>
                 <p style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;">
-                    This saves the file to your browser's local storage – it will persist across visits on this device.
+                    This saves the file to your browser's IndexedDB – it will persist across visits on this device.
                 </p>
             </div>
 
@@ -243,7 +243,63 @@
             navbar.classList.toggle('scrolled', window.scrollY > 60);
         });
 
-        // ===== FILE UPLOAD & SAVE TO LOCALSTORAGE =====
+        // ===== INDEXEDDB HELPERS =====
+        const DB_NAME = 'PortfolioDB';
+        const STORE_NAME = 'files';
+        const DB_VERSION = 1;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function saveFileToDB(file) {
+            return new Promise((resolve, reject) => {
+                openDB().then(db => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    const record = { id: 'portfolio', file: file, name: file.name, type: file.type };
+                    const request = store.put(record);
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                }).catch(reject);
+            });
+        }
+
+        function getFileFromDB() {
+            return new Promise((resolve, reject) => {
+                openDB().then(db => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const store = tx.objectStore(STORE_NAME);
+                    const request = store.get('portfolio');
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                }).catch(reject);
+            });
+        }
+
+        function deleteFileFromDB() {
+            return new Promise((resolve, reject) => {
+                openDB().then(db => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    const request = store.delete('portfolio');
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                }).catch(reject);
+            });
+        }
+
+        // ===== FILE UPLOAD & SAVE =====
         const fileInput = document.getElementById('fileInput');
         const uploadArea = document.getElementById('uploadArea');
         const pdfViewer = document.getElementById('pdfViewer');
@@ -254,12 +310,12 @@
         const resetDefaultBtn = document.getElementById('resetDefaultBtn');
 
         let uploadedFile = null;
-        let uploadedFileDataURL = null; // for saving
+        let uploadedFileURL = null; // for preview
 
         // Helper: display a file (preview)
         function displayFile(file) {
             const url = URL.createObjectURL(file);
-            // Clear viewer
+            uploadedFileURL = url;
             pdfViewer.innerHTML = '';
             const iframe = document.createElement('iframe');
             iframe.src = url;
@@ -274,7 +330,6 @@
             fileName.style.cssText = 'padding:12px 20px; background:var(--bg-card); border-bottom:1px solid var(--border-color); color:var(--text-secondary); font-size:0.9rem;';
             fileName.innerHTML = '<i class="fas fa-file" style="margin-right:8px;"></i> ' + file.name + ' (preview – not saved yet)';
             pdfViewer.prepend(fileName);
-            // Show save button
             saveBtnContainer.style.display = 'block';
             saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Permanently';
             saveBtn.disabled = false;
@@ -286,12 +341,6 @@
             const file = e.target.files[0];
             if (file) {
                 uploadedFile = file;
-                // Read as data URL for saving later
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    uploadedFileDataURL = ev.target.result;
-                };
-                reader.readAsDataURL(file);
                 displayFile(file);
                 uploadArea.querySelector('p:last-child').textContent = 'File loaded: ' + file.name + ' – click "Save Permanently" to store it.';
             }
@@ -314,11 +363,6 @@
                 dt.items.add(file);
                 fileInput.files = dt.files;
                 uploadedFile = file;
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    uploadedFileDataURL = ev.target.result;
-                };
-                reader.readAsDataURL(file);
                 displayFile(file);
                 uploadArea.querySelector('p:last-child').textContent = 'File loaded: ' + file.name + ' – click "Save Permanently" to store it.';
             }
@@ -330,9 +374,9 @@
             }
         });
 
-        // ===== SAVE PERMANENTLY (to localStorage) =====
-        saveBtn.addEventListener('click', () => {
-            if (!uploadedFileDataURL) {
+        // ===== SAVE PERMANENTLY (to IndexedDB) =====
+        saveBtn.addEventListener('click', async () => {
+            if (!uploadedFile) {
                 alert('Please select a file first.');
                 return;
             }
@@ -342,21 +386,25 @@
             btn.disabled = true;
 
             try {
-                // Save the data URL to localStorage
-                localStorage.setItem('portfolioDataURL', uploadedFileDataURL);
+                // Read file as ArrayBuffer and store as Blob in DB
+                const buffer = await uploadedFile.arrayBuffer();
+                const blob = new Blob([buffer], { type: uploadedFile.type });
+                await saveFileToDB(blob);
+                // Also store filename separately (we can store it in localStorage)
                 localStorage.setItem('portfolioFileName', uploadedFile.name);
 
                 // Update viewer to show saved version
+                const savedUrl = URL.createObjectURL(blob);
                 pdfViewer.innerHTML = '';
                 const iframe = document.createElement('iframe');
-                iframe.src = uploadedFileDataURL;
+                iframe.src = savedUrl;
                 iframe.style.width = '100%';
                 iframe.style.height = '700px';
                 iframe.style.border = 'none';
                 pdfViewer.appendChild(iframe);
                 const successMsg = document.createElement('div');
                 successMsg.style.cssText = 'padding:12px 20px; background:#4CAF50; color:white; font-weight:600; text-align:center;';
-                successMsg.innerHTML = '✅ Portfolio saved permanently in your browser! It will load automatically on this device.';
+                successMsg.innerHTML = '✅ Portfolio saved permanently in your browser (IndexedDB)! It will load automatically on this device.';
                 pdfViewer.prepend(successMsg);
 
                 btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
@@ -382,15 +430,22 @@
             saveBtnContainer.style.display = 'none';
             fileInput.value = '';
             uploadedFile = null;
-            uploadedFileDataURL = null;
+            if (uploadedFileURL) {
+                URL.revokeObjectURL(uploadedFileURL);
+                uploadedFileURL = null;
+            }
             uploadArea.querySelector('p:last-child').textContent = 'File preview cleared.';
         }
         window.clearUploadedPreview = clearUploadedPreview;
 
         // ===== RESET TO DEFAULT (repo PDF) =====
-        function resetToDefault() {
-            localStorage.removeItem('portfolioDataURL');
-            localStorage.removeItem('portfolioFileName');
+        async function resetToDefault() {
+            try {
+                await deleteFileFromDB();
+                localStorage.removeItem('portfolioFileName');
+            } catch (e) {
+                console.warn('Could not delete from DB:', e);
+            }
             loadPortfolio();
             resetDefaultBtn.style.display = 'none';
             saveBtnContainer.style.display = 'none';
@@ -398,39 +453,53 @@
             uploadArea.querySelector('p:last-child').textContent = 'Reset to default PDF from repository.';
             fileInput.value = '';
             uploadedFile = null;
-            uploadedFileDataURL = null;
+            if (uploadedFileURL) {
+                URL.revokeObjectURL(uploadedFileURL);
+                uploadedFileURL = null;
+            }
         }
         window.resetToDefault = resetToDefault;
 
         // ===== LOAD PORTFOLIO ON PAGE LOAD =====
-        function loadPortfolio() {
-            const savedDataURL = localStorage.getItem('portfolioDataURL');
-            pdfViewer.innerHTML = '';
-            if (savedDataURL) {
-                // Load saved data URL
-                const iframe = document.createElement('iframe');
-                iframe.src = savedDataURL;
-                iframe.style.width = '100%';
-                iframe.style.height = '700px';
-                iframe.style.border = 'none';
-                pdfViewer.appendChild(iframe);
-                const savedMsg = document.createElement('div');
-                savedMsg.style.cssText = 'padding:12px 20px; background:#4CAF50; color:white; font-weight:600; text-align:center;';
-                const fileName = localStorage.getItem('portfolioFileName') || 'your portfolio';
-                savedMsg.innerHTML = '📁 Loaded your saved portfolio: ' + fileName;
-                pdfViewer.prepend(savedMsg);
-                resetDefaultBtn.style.display = 'inline-flex';
-                saveBtnContainer.style.display = 'none';
-                pdfActions.style.display = 'none';
-            } else {
-                // Load default portfolio.pdf from repo
+        async function loadPortfolio() {
+            try {
+                const record = await getFileFromDB();
+                pdfViewer.innerHTML = '';
+                if (record && record.file) {
+                    // Saved file exists
+                    const blob = record.file;
+                    const url = URL.createObjectURL(blob);
+                    const iframe = document.createElement('iframe');
+                    iframe.src = url;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '700px';
+                    iframe.style.border = 'none';
+                    pdfViewer.appendChild(iframe);
+                    const savedMsg = document.createElement('div');
+                    savedMsg.style.cssText = 'padding:12px 20px; background:#4CAF50; color:white; font-weight:600; text-align:center;';
+                    const fileName = localStorage.getItem('portfolioFileName') || 'your portfolio';
+                    savedMsg.innerHTML = '📁 Loaded your saved portfolio: ' + fileName;
+                    pdfViewer.prepend(savedMsg);
+                    resetDefaultBtn.style.display = 'inline-flex';
+                    saveBtnContainer.style.display = 'none';
+                    pdfActions.style.display = 'none';
+                } else {
+                    // Load default portfolio.pdf from repo
+                    const container = document.createElement('div');
+                    container.id = 'defaultPdfContainer';
+                    container.innerHTML = `<iframe src="portfolio.pdf" style="width:100%; height:700px; border:none;"></iframe>`;
+                    pdfViewer.appendChild(container);
+                    resetDefaultBtn.style.display = 'none';
+                    saveBtnContainer.style.display = 'none';
+                    pdfActions.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Error loading portfolio:', e);
+                // Fallback to default
                 const container = document.createElement('div');
                 container.id = 'defaultPdfContainer';
                 container.innerHTML = `<iframe src="portfolio.pdf" style="width:100%; height:700px; border:none;"></iframe>`;
                 pdfViewer.appendChild(container);
-                resetDefaultBtn.style.display = 'none';
-                saveBtnContainer.style.display = 'none';
-                pdfActions.style.display = 'none';
             }
         }
 
