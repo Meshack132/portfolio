@@ -71,7 +71,7 @@
             <h2 class="section-title">Upload &amp; View <span>Your Work</span></h2>
             <p style="color:var(--text-secondary); max-width:600px; margin-bottom:40px;">
                 Upload your portfolio PDF (or any document) and it will be displayed here instantly.
-                No images to manage – just one file.
+                The default file is <strong>portfolio.pdf</strong> – you can upload a different one to preview it.
             </p>
 
             <!-- Upload Area -->
@@ -90,7 +90,12 @@
 
             <!-- PDF / Document Viewer -->
             <div class="pdf-viewer" id="pdfViewer">
-                <div class="placeholder" id="placeholder">
+                <!-- Default PDF (from the repo) -->
+                <div id="defaultPdfContainer">
+                    <iframe id="defaultPdfIframe" src="portfolio.pdf" style="width:100%; height:700px; border:none;"></iframe>
+                </div>
+                <!-- Placeholder (hidden by default) -->
+                <div class="placeholder" id="placeholder" style="display:none;">
                     <div class="icon"><i class="fas fa-file-pdf"></i></div>
                     <p>No portfolio uploaded yet.</p>
                     <p style="font-size:0.9rem; color:var(--text-muted);">Use the upload area above to display your work.</p>
@@ -100,7 +105,7 @@
             <!-- Action buttons -->
             <div class="pdf-actions" id="pdfActions" style="display:none;">
                 <a href="#" id="downloadLink" class="btn btn-outline" download><i class="fas fa-download"></i> Download</a>
-                <button class="btn btn-outline" onclick="clearPortfolio();"><i class="fas fa-trash-alt"></i> Remove</button>
+                <button class="btn btn-outline" onclick="clearPortfolio();"><i class="fas fa-undo-alt"></i> Reset to Default</button>
             </div>
         </div>
     </section>
@@ -159,7 +164,7 @@
         </div>
     </section>
 
-    <!-- ===== CONTACT (updated with your details) ===== -->
+    <!-- ===== CONTACT ===== -->
     <section class="contact-section" id="contact">
         <div class="container">
             <div class="section-label"><i class="fas fa-paper-plane"></i> Connect</div>
@@ -236,12 +241,27 @@
         // ===== FILE UPLOAD HANDLER =====
         const fileInput = document.getElementById('fileInput');
         const uploadArea = document.getElementById('uploadArea');
-        const placeholder = document.getElementById('placeholder');
         const pdfViewer = document.getElementById('pdfViewer');
+        const placeholder = document.getElementById('placeholder');
+        const defaultContainer = document.getElementById('defaultPdfContainer');
         const pdfActions = document.getElementById('pdfActions');
         const downloadLink = document.getElementById('downloadLink');
 
+        // Helper to show default PDF
+        function showDefault() {
+            // Clear viewer and restore default iframe
+            pdfViewer.innerHTML = '';
+            const newDefault = document.createElement('div');
+            newDefault.id = 'defaultPdfContainer';
+            newDefault.innerHTML = `<iframe id="defaultPdfIframe" src="portfolio.pdf" style="width:100%; height:700px; border:none;"></iframe>`;
+            pdfViewer.appendChild(newDefault);
+            pdfActions.style.display = 'none';
+            document.getElementById('placeholder').style.display = 'none';
+        }
+
+        // Display uploaded file (overwrites default)
         function displayFile(file) {
+            // Clear viewer completely
             pdfViewer.innerHTML = '';
             const url = URL.createObjectURL(file);
             const type = file.type;
@@ -249,6 +269,9 @@
                 const iframe = document.createElement('iframe');
                 iframe.src = url;
                 iframe.setAttribute('title', 'Portfolio PDF');
+                iframe.style.width = '100%';
+                iframe.style.height = '700px';
+                iframe.style.border = 'none';
                 pdfViewer.appendChild(iframe);
             } else if (type.includes('image')) {
                 const img = document.createElement('img');
@@ -266,9 +289,11 @@
                 obj.innerHTML = 'Your browser does not support displaying this file. <a href="' + url + '" download>Download it here</a>.';
                 pdfViewer.appendChild(obj);
             }
+            // Show download and reset buttons
             pdfActions.style.display = 'flex';
             downloadLink.href = url;
             downloadLink.download = file.name || 'portfolio';
+            // Add file name as header
             const fileName = document.createElement('div');
             fileName.style.cssText = 'padding:12px 20px; background:var(--bg-card); border-bottom:1px solid var(--border-color); color:var(--text-secondary); font-size:0.9rem;';
             fileName.innerHTML = '<i class="fas fa-file" style="margin-right:8px;"></i> ' + file.name;
@@ -310,23 +335,12 @@
             }
         });
 
+        // Reset to default PDF
         function clearPortfolio() {
-            pdfViewer.innerHTML = '';
-            const newPlaceholder = document.createElement('div');
-            newPlaceholder.className = 'placeholder';
-            newPlaceholder.id = 'placeholder';
-            newPlaceholder.innerHTML = `
-                <div class="icon"><i class="fas fa-file-pdf"></i></div>
-                <p>No portfolio uploaded yet.</p>
-                <p style="font-size:0.9rem; color:var(--text-muted);">Use the upload area above to display your work.</p>
-            `;
-            pdfViewer.appendChild(newPlaceholder);
-            pdfActions.style.display = 'none';
+            showDefault();
             fileInput.value = '';
             uploadArea.querySelector('p:last-child').textContent = 'File is stored only in your browser – no upload to any server.';
-            if (downloadLink.href) {
-                URL.revokeObjectURL(downloadLink.href);
-            }
+            // Revoke any object URLs (but they're cleared when we replace innerHTML)
         }
         window.clearPortfolio = clearPortfolio;
 
@@ -347,6 +361,14 @@
                     e.target.reset();
                 }, 2000);
             }, 1500);
+        });
+
+        // Initial state: show default PDF (already present in HTML)
+        // But we need to ensure the placeholder is hidden and actions hidden.
+        document.addEventListener('DOMContentLoaded', function() {
+            // The default is already visible. Just hide placeholder and actions.
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('pdfActions').style.display = 'none';
         });
     </script>
 </body>
