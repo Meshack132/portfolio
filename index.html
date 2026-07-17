@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boitumelo Mthimkhulu · Portfolio</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- ===== NAV ===== -->
+    <nav class="navbar" id="navbar" role="navigation">
+        <div class="container nav-inner">
+            <a href="#" class="logo">BM<span>.</span></a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#about">About</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="nav-hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <span class="hero-badge"><i class="fas fa-ruler-combined" style="margin-right:6px;"></i> SACAP Registered</span>
+                <p class="hero-sub">Senior Architectural Technologist</p>
+                <h1>Boitumelo <span>Mthimkhulu</span></h1>
+                <p class="hero-title-line">M(Arch) Prof. · WITS University · <strong>12+ Years</strong> Experience</p>
+                <div class="hero-buttons">
+                    <a href="#portfolio" class="btn"><i class="fas fa-upload"></i> View Portfolio</a>
+                    <a href="#contact" class="btn btn-outline"><i class="fas fa-envelope"></i> Get in Touch</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stats-item">
+                        <span class="number">12+</span>
+                        <span class="label">Years Experience</span>
+                    </div>
+                    <div class="hero-stats-item">
+                        <span class="number">26</span>
+                        <span class="label">Stations Revived</span>
+                    </div>
+                    <div class="hero-stats-item">
+                        <span class="number">10</span>
+                        <span class="label">Major Projects</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-image-placeholder">
+                    <div class="hero-image-ring"></div>
+                    <span class="initials">BM</span>
+                    <span class="name-overlay">ARCHITECTURE · DESIGN · MANAGEMENT</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PORTFOLIO UPLOAD ===== -->
+    <section class="portfolio-section" id="portfolio">
+        <div class="container">
+            <div class="section-label"><i class="fas fa-folder-open"></i> Portfolio</div>
+            <h2 class="section-title">Upload &amp; View <span>Your Work</span></h2>
+            <p style="color:var(--text-secondary); max-width:600px; margin-bottom:40px;">
+                Upload your portfolio PDF (or any document) and it will be displayed here instantly.
+                No images to manage – just one file.
+            </p>
+
+            <!-- Upload Area -->
+            <div class="upload-area" id="uploadArea">
+                <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <h3>Drop your portfolio here</h3>
+                <p>or click to browse · PDF, DOCX, or images supported</p>
+                <button class="btn" onclick="document.getElementById('fileInput').click();">
+                    <i class="fas fa-upload"></i> Choose File
+                </button>
+                <input type="file" id="fileInput" accept=".pdf,.docx,.jpg,.jpeg,.png,.gif,.bmp,.tiff" />
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:12px;">
+                    <i class="fas fa-info-circle"></i> File is stored only in your browser – no upload to any server.
+                </p>
+            </div>
+
+            <!-- PDF / Document Viewer -->
+            <div class="pdf-viewer" id="pdfViewer">
+                <div class="placeholder" id="placeholder">
+                    <div class="icon"><i class="fas fa-file-pdf"></i></div>
+                    <p>No portfolio uploaded yet.</p>
+                    <p style="font-size:0.9rem; color:var(--text-muted);">Use the upload area above to display your work.</p>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="pdf-actions" id="pdfActions" style="display:none;">
+                <a href="#" id="downloadLink" class="btn btn-outline" download><i class="fas fa-download"></i> Download</a>
+                <button class="btn btn-outline" onclick="clearPortfolio();"><i class="fas fa-trash-alt"></i> Remove</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="section-label"><i class="fas fa-user"></i> About</div>
+            <h2 class="section-title">Architectural <span>Leadership</span></h2>
+            <div class="about-grid">
+                <div class="about-text">
+                    <p>
+                        <strong>Boitumelo Mthimkhulu</strong> is a Senior Architectural Technologist with over
+                        <span class="highlight">12 years</span> of experience spanning commercial, retail,
+                        residential, and transport infrastructure projects across South Africa.
+                    </p>
+                    <p>
+                        Currently serving as <strong>Programme Manager</strong> at PRASA CRES in the South Gauteng Region,
+                        Boitumelo has led the revival of <span class="highlight">26 vandalized train stations</span>
+                        and directed multiple refurbishment programmes, restoring commuter access.
+                    </p>
+                    <p>
+                        With a Master of Architecture from WITS University and registration with SACAP,
+                        Boitumelo combines <span class="highlight">design excellence</span>,
+                        <span class="highlight">technical rigor</span>, and
+                        <span class="highlight">strategic programme management</span>.
+                    </p>
+                </div>
+                <div class="exp-timeline">
+                    <div class="exp-item">
+                        <span class="year">2023 – Present</span>
+                        <h4>Programme Manager</h4>
+                        <div class="company">PRASA CRES · South Gauteng</div>
+                        <div class="desc">Leading infrastructure recovery and station refurbishments.</div>
+                    </div>
+                    <div class="exp-item">
+                        <span class="year">2022 – 2023</span>
+                        <h4>Non-Executive Director</h4>
+                        <div class="company">Johannesburg Property Company</div>
+                        <div class="desc">Strategic oversight of property assets.</div>
+                    </div>
+                    <div class="exp-item">
+                        <span class="year">2015 – 2022</span>
+                        <h4>Project Architect</h4>
+                        <div class="company">Koen &amp; Associates Architects · Sandton</div>
+                        <div class="desc">Led mixed-use, retail, and interior projects from concept to completion.</div>
+                    </div>
+                    <div class="exp-item">
+                        <span class="year">2010 – 2014</span>
+                        <h4>Architectural Technologist</h4>
+                        <div class="company">Stauch Vorster Architects · Illovo</div>
+                        <div class="desc">Technical documentation, design development, and council submissions.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT (updated with your details) ===== -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="section-label"><i class="fas fa-paper-plane"></i> Connect</div>
+            <h2 class="section-title">Let's <span>Collaborate</span></h2>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Get in touch</h3>
+                    <p>
+                        I'm always open to discussing new projects, partnerships, or opportunities
+                        where I can bring architectural vision and technical expertise to life.
+                    </p>
+                    <div class="contact-item">
+                        <div class="icon"><i class="fas fa-envelope"></i></div>
+                        <div class="info"><strong>Email</strong><br />b.n.mthimkhulu@gmail.com</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon"><i class="fas fa-phone-alt"></i></div>
+                        <div class="info"><strong>Phone</strong><br />0768150707</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info"><strong>Location</strong><br />Johannesburg, South Africa</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon"><i class="fab fa-linkedin-in"></i></div>
+                        <div class="info"><strong>LinkedIn</strong><br /><a href="https://www.linkedin.com/in/boitumelo-mthimkhulu-34822246/" target="_blank">linkedin.com/in/boitumelo-mthimkhulu</a></div>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <input type="text" placeholder="Your Name" required />
+                    <input type="email" placeholder="Your Email" required />
+                    <input type="text" placeholder="Subject" />
+                    <textarea placeholder="Tell me about your project…" required></textarea>
+                    <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container footer-inner">
+            <p>&copy; 2026 Boitumelo Mthimkhulu · Built with <i class="fas fa-heart" style="color:var(--accent);font-size:0.8rem;"></i></p>
+            <div class="footer-socials">
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== NAV TOGGLE =====
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+
+        // ===== NAV SCROLL =====
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 60);
+        });
+
+        // ===== FILE UPLOAD HANDLER =====
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const placeholder = document.getElementById('placeholder');
+        const pdfViewer = document.getElementById('pdfViewer');
+        const pdfActions = document.getElementById('pdfActions');
+        const downloadLink = document.getElementById('downloadLink');
+
+        function displayFile(file) {
+            pdfViewer.innerHTML = '';
+            const url = URL.createObjectURL(file);
+            const type = file.type;
+            if (type.includes('pdf')) {
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.setAttribute('title', 'Portfolio PDF');
+                pdfViewer.appendChild(iframe);
+            } else if (type.includes('image')) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                img.style.display = 'block';
+                pdfViewer.appendChild(img);
+            } else {
+                const obj = document.createElement('object');
+                obj.data = url;
+                obj.type = type;
+                obj.style.width = '100%';
+                obj.style.height = '700px';
+                obj.innerHTML = 'Your browser does not support displaying this file. <a href="' + url + '" download>Download it here</a>.';
+                pdfViewer.appendChild(obj);
+            }
+            pdfActions.style.display = 'flex';
+            downloadLink.href = url;
+            downloadLink.download = file.name || 'portfolio';
+            const fileName = document.createElement('div');
+            fileName.style.cssText = 'padding:12px 20px; background:var(--bg-card); border-bottom:1px solid var(--border-color); color:var(--text-secondary); font-size:0.9rem;';
+            fileName.innerHTML = '<i class="fas fa-file" style="margin-right:8px;"></i> ' + file.name;
+            pdfViewer.prepend(fileName);
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                displayFile(file);
+                uploadArea.querySelector('p:last-child').textContent = 'File loaded: ' + file.name;
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+                displayFile(file);
+                uploadArea.querySelector('p:last-child').textContent = 'File loaded: ' + file.name;
+            }
+        });
+
+        uploadArea.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                fileInput.click();
+            }
+        });
+
+        function clearPortfolio() {
+            pdfViewer.innerHTML = '';
+            const newPlaceholder = document.createElement('div');
+            newPlaceholder.className = 'placeholder';
+            newPlaceholder.id = 'placeholder';
+            newPlaceholder.innerHTML = `
+                <div class="icon"><i class="fas fa-file-pdf"></i></div>
+                <p>No portfolio uploaded yet.</p>
+                <p style="font-size:0.9rem; color:var(--text-muted);">Use the upload area above to display your work.</p>
+            `;
+            pdfViewer.appendChild(newPlaceholder);
+            pdfActions.style.display = 'none';
+            fileInput.value = '';
+            uploadArea.querySelector('p:last-child').textContent = 'File is stored only in your browser – no upload to any server.';
+            if (downloadLink.href) {
+                URL.revokeObjectURL(downloadLink.href);
+            }
+        }
+        window.clearPortfolio = clearPortfolio;
+
+        // ===== CONTACT FORM =====
+        document.getElementById('contactForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('.btn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
+                btn.style.background = '#4CAF50';
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    e.target.reset();
+                }, 2000);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
