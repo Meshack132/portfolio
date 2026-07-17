@@ -1,6 +1,5 @@
 import { put } from '@vercel/blob';
-import { IncomingForm } from 'formidable';
-import fs from 'fs';
+import Busboy from 'busboy';
 
 export const config = {
   api: {
@@ -13,26 +12,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  try {
-    const form = new IncomingForm();
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        console.error('Form parse error:', err);
-        return res.status(500).json({ error: 'Upload failed' });
-      }
-      const file = files.file[0];
-      if (!file) {
-        return res.status(400).json({ error: 'No file provided' });
-      }
-      const fileBuffer = fs.readFileSync(file.filepath);
-      const filename = `portfolio-${Date.now()}.pdf`;
-      const blob = await put(filename, fileBuffer, {
+  const busboy = Busboy({ headers: req.headers });
+  const chunks = [];
+  let filename = '';
+
+  busboy.on('file', (fieldname, file, info) => {
+    filename = info.filename;
+    file.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+  });
+
+  busboy.on('finish', async () => {
+    const buffer = Buffer.concat(chunks);
+    try {
+      const blob = await put(`portfolio-${Date.now()}.pdf`, buffer, {
         access: 'public',
       });
-      return res.status(200).json({ url: blob.url });
-    });
-  } catch (error) {
-    console.error('Upload error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
+      res.status(200).json({ url: blob.url });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  req.pipe(busboy);
 }
